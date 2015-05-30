@@ -1,0 +1,216 @@
+{% extends "bootstrap/base.html" %}
+{% block title %}Pandas Pivot{% endblock %}
+{% block content %}
+<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.css">
+<link rel="stylesheet" type="text/css" href="/static/css/simple-sidebar.css">
+<link rel="stylesheet" type="text/css" href="/static/css/pandaspivot.css">
+
+<div class=container-fluid>
+   <div id="wrapper">
+      <div id="sidebar-wrapper">
+         <div class="panel-group"> 
+         <div class=row>
+            <div class="col-md-12">
+               <div class="panel panel-info" >
+                  <div class="panel-heading pivotheader">Available Fields</div>
+                  <div class="panel-body pivotpanel">
+                     <ul id="fields" class="connected sortable list list-group sortable pivotfields" >
+                        {% for col in pandastable.columns %}
+                        <li id={{col}} class="list-group-item sortable-item" draggable="true">
+						<input type="hidden" name="fields[]" value="{{ col }}"/>{{col}}</li>
+                        {% endfor %}
+                     </ul>
+                  </div>
+               </div>
+            </div>
+         </div>
+		 <form>
+          <div class="pivotsetup">                
+            <div class=row >
+               <div class="col-md-12">
+                  <div class="panel panel-info" >
+                     <div class="panel-heading pivotheader">Filters</div>
+                     <div class="panel-body pivotpanel" > 
+                        <ul id="filters" class="connected sortable list list-group sortable ui-sortable pivotfields column" style ="background-color: #F93;" >
+							<li class="list-group-item placeholder" draggable="true"></li>                      
+                        </ul> </div>
+                  </div>
+               </div>
+               <div class="col-md-12">
+                  <div class="panel panel-info">
+                     <div class="panel-heading pivotheader">Columns</div>
+                     <div class="panel-body pivotpanel" > 
+                        <ul id="columns" class="connected sortable list list-group sortable pivotfields column" >
+                        <li class="list-group-item placeholder" draggable="true"></li>
+                        </ul>  </div>
+                  </div>
+               </div>
+            </div>
+            <div class=row>
+               <div class="col-md-12">
+                  <div class="panel panel-info" >
+                     <div class="panel-heading pivotheader">Rows</div>
+                     <div class="panel-body pivotpanel" >
+                        <ul id="rows" class="connected sortable list list-group sortable pivotfields column" >
+                        <li class="list-group-item placeholder" draggable="true"></li>
+                        </ul> </div>
+                  </div>
+               </div>
+               <div class="col-md-12">
+                  <div class="panel panel-info">
+                     <div class="panel-heading pivotheader">Values</div>
+                     <div class="panel-body pivotpanel"  > 
+                        <ul id="values" class="connected sortable list list-group sortable pivotfields column" >
+                            <li class="list-group-item placeholder" draggable="true"></li>
+                        </ul>
+                    </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+        <button class="btn btn-sm btn-primary">Pivot</button>
+      </div>
+      </div>
+	  </form>
+      <div id="page-content-wrapper">
+         <!-- <div class="container"> -->
+         <!--
+		 <div class="jumbotron">
+            <h2>Hello World from Pandaspage!</h2>
+            <p>see all your data</p>
+         </div> -->
+		  <ul class="nav nav-tabs data-tabs="tabs"">
+			<li class="active"><a data-toggle="tab" href="#summary">Data Summary</a></li>
+			<li><a data-toggle="tab" href="#showdatatable">Data</a></li>
+			<li><a data-toggle="tab" href="#pivot">Pivot</a></li>
+			<li><a data-toggle="tab" href="#graph">Pivot Graph</a></li>
+		  </ul>
+			<div class="tab-content">
+				<div id="summary" class="tab-pane fade in active">
+					<br>
+					<h3>Data Description</h3>
+					{{np.round(pandastable.describe(),2).to_html(classes="table-striped table-condensed table-hover", na_rep="-") |safe}} 
+					<h3>Data Head</h3>
+					{{pandastable.head(3).to_html(classes="table-striped table-condensed table-hover", index=index, na_rep="-") |safe}} 
+					<h3>Data Tail</h3>
+					{{pandastable.tail(3).to_html(classes="table-striped table-condensed table-hover", index=index, na_rep="-") |safe}} 
+				</div>
+				<div id="showdatatable" class="tab-pane fade in ">
+					<br>
+					{{pandastable.to_html(classes="table table-striped table-condensed table-hover", index=index, na_rep="-") |safe}} 
+				</div>
+				<div id="pivot" class="tab-pane fade in">
+					<br>
+                    <div id="pivottable">
+                        Pivot here
+                    </div>
+					</div>
+					
+				<div id="graph" class="tab-pane fade in">
+					<br>
+					Graph here
+				</div>
+			</div>
+       <!-- </div> -->
+   </div>
+</div>
+<//div>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.2/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+<!-- <script src="//cdnjs.cloudflare.com/ajax/libs/html5sortable/0.2.2/html.sortable.js"></script> -->
+<script src="//cdn.datatables.net/1.10.6/js/jquery.dataTables.js"></script>
+<script src="//cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.js"></script>
+<script>$('.sortable').sortable({
+	connectWith: '.connected',
+            placeholder: 'placeholder',
+            forcePlaceholderSize:true
+	});</script>
+
+<script>
+// Get all items from a container
+function getItems(container)
+{
+    var columns = [];
+    console.debug(container)
+ 
+    $(container).each(function(){
+        columns.push($(this).sortable('toArray').join(','));
+    });
+ 
+    return columns.join('|');
+    
+    var itemStr = getItems('.column');
+    console.debug(itemStr);
+}</script>
+
+<script type="text/javascript">
+   $('.table').DataTable( {
+   "bPaginate": true,
+   "bLengthChange": true,
+   "bSort": true,
+   "bStateSave": true,
+   "sScrollY": 800,
+   "sScrollX": 1000,
+   "aLengthMenu": [[50, 100, 250, 500, 1000, -1], [50, 100, 250, 500, 1000, "All"]],
+   "iDisplayLength": 50,
+   } );
+</script>
+
+<script>
+    console.log("I am running");
+    $('.btn').on('click', function(e){
+        e.preventDefault();
+        console.log('clicked button');            
+        var myrows = [];
+        $('#rows li').each(function(){var myfield = $(this).attr('id');
+                                      if (myfield){
+                                        myrows.push(myfield);
+                                      }
+                                      });
+        console.log(myrows);
+        var myvalues = [];
+        $('#values li').each(function(){var myfield = $(this).attr('id');
+                                      if (myfield){
+                                        myvalues.push(myfield);
+                                      }
+                                      });
+        console.log(myvalues);
+        var mycolumns = [];
+        $('#columns li').each(function(){var myfield = $(this).attr('id');
+                                      if (myfield){
+                                        mycolumns.push(myfield);
+                                      }
+                                      });
+        console.log(mycolumns);
+        var myfilters = [];
+        $('#filters li').each(function(){var myfield = $(this).attr('id');
+                                      if (myfield){
+                                        myfilters.push(myfield);
+                                      }
+                                      });
+        console.log(myfilters);
+        
+        $.ajax({
+            url: '/pivot',
+            data: {"filters": myfilters, "rows": myrows, "columns": mycolumns, "values":myvalues},
+            type: 'POST',
+            dataType: 'json',
+            success: function(response) {
+                console.log('yeah');
+                $('#pivottable').html(response["data"]);
+                console.log(response);
+            },
+            error: function(error) {
+                console.log('nope');
+                console.log(error);
+            }
+            
+        });
+        
+        }); 
+
+</script>
+
+{% endblock %}
