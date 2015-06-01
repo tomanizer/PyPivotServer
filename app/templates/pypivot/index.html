@@ -12,9 +12,19 @@
                      <ul id="fields" class="connected sortable list list-group sortable pivotfields" >
                         {% for col in pandastable.columns %}
                         <li id={{col}} class="list-group-item sortable-item" draggable="true">
-						<input type="hidden" name="fields[]" value="{{ col }}"/>{{col}}</li>
+						<input type="hidden" name="fields[]" value="{{ col }}"/>
+                            {{col}}
+                            <select class="fieldmulti">
+                            {%for val in pandastable[col].unique() %}   
+                                <option value={{val}}>{{val}}</option>
+                            {% endfor %}
+                            </select>
+                         
+
+                         </li>
                         {% endfor %}
                      </ul>
+                      
                   </div>
                </div>
             </div>
@@ -121,7 +131,15 @@
 	connectWith: '.connected',
             placeholder: 'placeholder',
             forcePlaceholderSize:true
-	});</script>
+	});
+
+
+ 
+
+
+</script>
+
+
 
 <script>
 // Get all items from a container
@@ -205,6 +223,8 @@ function getItems(container)
         });
         
         }); 
+
+
 
 </script>
 
