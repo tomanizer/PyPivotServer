@@ -4,7 +4,7 @@
 <div id="wrapper">
       <div id="sidebar-wrapper">
          <div class="panel-group"> 
-         <div class=row>
+         <div class=row height="50%">
             <div class="col-md-12">
                <div class="panel panel-info" >
                   <div class="panel-heading pivotheader">Available Fields</div>
@@ -14,9 +14,9 @@
                         <li id={{col}} class="list-group-item sortable-item" draggable="true">
 						<input type="hidden" name="fields[]" value="{{ col }}"/>
                             {{col}}
-                            <select class="fieldmulti">
+                            <select class="fieldmulti selectpicker" multiple >
                             {%for val in pandastable[col].unique() %}   
-                                <option value={{val}}>{{val}}</option>
+                                <option  value={{val}}>{{val}}</option>
                             {% endfor %}
                             </select>
                          
@@ -29,9 +29,11 @@
                </div>
             </div>
          </div>
-		 <form>
-          <div class="pivotsetup">                
-            <div class=row >
+
+          <div class="pivotsetup" height="50%">    
+ 
+            <div class=row  >
+                           <form>
                <div class="col-md-12">
                   <div class="panel panel-info" >
                      <div class="panel-heading pivotheader">Filters</div>
@@ -50,8 +52,6 @@
                         </ul>  </div>
                   </div>
                </div>
-            </div>
-            <div class=row>
                <div class="col-md-12">
                   <div class="panel panel-info" >
                      <div class="panel-heading pivotheader">Rows</div>
@@ -71,12 +71,16 @@
                     </div>
                   </div>
                </div>
+             <button class="btn btn-sm btn-primary">Pivot</button>
+            </form>
             </div>
+
+
          </div>
-        <button class="btn btn-sm btn-primary">Pivot</button>
+
       </div>
       </div>
-	  </form>
+	
       <div id="page-content-wrapper">
          <!-- <div class="container"> -->
          <!--
@@ -127,21 +131,19 @@
 <!-- <script src="//cdnjs.cloudflare.com/ajax/libs/html5sortable/0.2.2/html.sortable.js"></script> -->
 <script src="//cdn.datatables.net/1.10.6/js/jquery.dataTables.js"></script>
 <script src="//cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.2/js/bootstrap-select.js"></script>
 <script>$('.sortable').sortable({
 	connectWith: '.connected',
             placeholder: 'placeholder',
             forcePlaceholderSize:true
 	});
 
-
- 
-
-
 </script>
 
 
 
 <script>
+
 // Get all items from a container
 function getItems(container)
 {
@@ -156,9 +158,9 @@ function getItems(container)
     
     var itemStr = getItems('.column');
     console.debug(itemStr);
-}</script>
+}
 
-<script type="text/javascript">
+function formattable() {
    $('.table').DataTable( {
    "bPaginate": true,
    "bLengthChange": true,
@@ -167,11 +169,14 @@ function getItems(container)
    "sScrollY": 800,
    "sScrollX": 1000,
    "aLengthMenu": [[50, 100, 250, 500, 1000, -1], [50, 100, 250, 500, 1000, "All"]],
-   "iDisplayLength": 50,
+   "iDisplayLength": 50
    } );
+}
 </script>
 
 <script>
+    formattable();
+    
     console.log("I am running");
     $('.btn').on('click', function(e){
         e.preventDefault();
@@ -213,6 +218,7 @@ function getItems(container)
             success: function(response) {
                 console.log('yeah');
                 $('#pivottable').html(response["data"]);
+                formattable();
                 console.log(response);
             },
             error: function(error) {
